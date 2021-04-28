@@ -1,0 +1,19 @@
+name: 'Generate Dependency CSV File'
+description: 'Generates a csv file that contains a list of the depenencies detected in the specified repo.'
+branding:
+  icon: 'package'
+  color: 'green'
+inputs: 
+  repo-token:
+    description: 'REQUIRED: The GITHUB_TOKEN secret. Make sure this token has rights to all the repos you want to catalog.'
+    required: true
+  org-name:
+    description: 'The name of the owner/organization that contains the repositories (defaults to current repository owner)'
+    default: ${{ github.repository_owner }}
+    required: false
+  repo-names:
+    description: 'REQUIRED: A comma separated list of repository names to catalog.'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
