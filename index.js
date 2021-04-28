@@ -10,7 +10,7 @@ const repoNames = repos.split(',');
 
 const artifact = require('@actions/artifact');
 const artifactClient = artifact.create();
-const artifactName = `dependency-lists`;
+const artifactName = `vulnerability-alerts`;
 let files = [];
 const rootDirectory = '.'; // Also possible to use __dirname
 const options = {

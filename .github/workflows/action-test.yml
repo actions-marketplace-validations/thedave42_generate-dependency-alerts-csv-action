@@ -12,4 +12,5 @@ jobs:
       uses: ./ # Uses an action in the root directory
       with:
         repo-token: ${{ secrets.DEPS_TOKEN }}
-        repo-names: generate-dependencies-csv-action,f1tv-dl,node-fluent-ffmpeg,node-appletv-x
+        org-name: octodemo
+        repo-names: demo-ghas-geekmasher,activemq

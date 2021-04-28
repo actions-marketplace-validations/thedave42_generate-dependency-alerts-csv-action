@@ -17,7 +17,7 @@ const repoNames = repos.split(',');
 
 const artifact = __nccwpck_require__(7886);
 const artifactClient = artifact.create();
-const artifactName = `dependency-lists`;
+const artifactName = `vulnerability-alerts`;
 let files = [];
 const rootDirectory = '.'; // Also possible to use __dirname
 const options = {
