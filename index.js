@@ -74,7 +74,7 @@ async function DumpDependencies() {
     }`
 
     try {
-      const outfile = `./${org}-${repo}-dependency-list.csv`;
+      const outfile = `./${org}-${repo}-vulnerabilities-list.csv`;
       files.push(outfile);
       const lines = ['org,repo,package,ecosystem,summary,severity,permalink'];
 

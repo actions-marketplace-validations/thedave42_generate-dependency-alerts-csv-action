@@ -44,53 +44,65 @@ async function DumpDependencies() {
       `query ($org: String! $repo: String! $cursor: String){
       repository(owner: $org name: $repo) {
         name
-        dependencyGraphManifests(first: 100 after: $cursor) {
+        vulnerabilityAlerts(first: 100 after: $cursor) {
           pageInfo {
             hasNextPage
             endCursor
           }
-          
+          totalCount
           nodes {
-            dependenciesCount
-            dependencies {
-              nodes {
-                packageManager
-                packageName
-                requirements
-                hasDependencies
-              }
+            id
+            securityAdvisory {
+              ...advFields
             }
+            securityVulnerability {
+              package {
+                ...pkgFields
+              }
+              vulnerableVersionRange
+            }
+            vulnerableManifestFilename
+            vulnerableManifestPath
+            vulnerableRequirements
           }
         }
       }
-    }`;
+    }
+    fragment advFields on SecurityAdvisory {
+      ghsaId
+      permalink
+      severity
+      description
+      summary
+    }
+    fragment pkgFields on SecurityAdvisoryPackage {
+      name
+      ecosystem
+    }`
 
     try {
-      const outfile = `./${org}-${repo}-dependency-list.csv`;
+      const outfile = `./${org}-${repo}-vulnerabilities-list.csv`;
       files.push(outfile);
-      fs.writeFileSync(outfile, "org,repo,ecosystem,packageName,version,hasDependencies\n");
-      let hasNextPage = false;
+      const lines = ['org,repo,package,ecosystem,summary,severity,permalink'];
+
+      let hasNextPage = false
       do {
-        const getDepsResult = await graphql({ query, org: org, repo: repo, cursor: pagination });
+        const getVulnResult = await graphql({ query, org: org, repo: repo, cursor: pagination })
+        hasNextPage = getVulnResult.repository.vulnerabilityAlerts.pageInfo.hasNextPage
+        const vulns = getVulnResult.repository.vulnerabilityAlerts.nodes
 
-        hasNextPage = getDepsResult.repository.dependencyGraphManifests.pageInfo.hasNextPage;
-        const repoDependencies = getDepsResult.repository.dependencyGraphManifests.nodes;
-
-
-        for (const repoDependency of repoDependencies) {
-          for (const dep of repoDependency.dependencies.nodes) {
-            fs.appendFileSync(outfile, `${org},${repo},${dep.packageManager},${dep.packageName},${dep.requirements},${dep.hasDependencies}\n`);
-          }
+        for (const vuln of vulns) {
+          lines.push(`${org},${repo},${vuln.securityVulnerability.package.name},${vuln.securityVulnerability.package.ecosystem},"${vuln.securityAdvisory.summary}",${vuln.securityAdvisory.severity},${vuln.securityAdvisory.permalink}`)
         }
 
         if (hasNextPage) {
-          pagination = getVulnResult.repository.vulnerabilityAlerts.pageInfo.endCursor;
+          pagination = getVulnResult.repository.vulnerabilityAlerts.pageInfo.endCursor
         }
       } while (hasNextPage);
-      // End get dependencies for one repo
+      fs.writeFileSync(outfile, lines.join('\n'));
     } catch (error) {
-      console.log('Request failed:', error.request);
-      console.log(error.message);
+      console.log('Request failed:', error.request)
+      console.log(error.message)
     }
   }
   const uploadResponse = await artifactClient.uploadArtifact(artifactName, files, rootDirectory, options);
