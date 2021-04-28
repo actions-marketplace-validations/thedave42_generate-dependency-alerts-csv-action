@@ -1,5 +1,5 @@
-name: 'Generate Dependency CSV File'
-description: 'Generates a csv file that contains a list of the depenencies detected in the specified repo.'
+name: 'Generate Vulnerability Alerts CSV File'
+description: 'This action generates a csv file that contains a list of the vulnerabilities detected for each of the specified repos.'
 branding:
   icon: 'package'
   color: 'green'
